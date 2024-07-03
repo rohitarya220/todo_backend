@@ -11,9 +11,6 @@
   "keywords": [],
   "author": "Your Name",
   "license": "ISC",
-  "engines": {
-    "node": "18.x"
-  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
