@@ -1,33 +1,35 @@
-const userModel = require("../../Model/user");
-const bcrypt = require('bcrypt')
+const User = require("../../Model/user");
+const bcrypt = require('bcrypt');
 
 const registerUser = async (req, res) => {
-
-    const {username, password, email, role} = req.body;
-
     try {
-        const existingUser = await userModel.findOne({email})
+        // const { email, password, username } = req.body;
+        // console.log(req.body)
 
-        if(existingUser){
-            return res.status(203).json({message: 'user already registered'})
+        if (!req.body.email || !req.body.password) {
+            return res.status(400).json({ message: 'Email and Password are required' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const existingUser = await User.findOne({ email: req.body.email });
 
-        const newUser = new userModel({
-            username, 
-            password: hashedPassword,
-            email, 
-            role
-        })
-        await newUser.save()
+        if (existingUser) {
+            return res.status(203).json({ message: 'User already registered' });
+        }
 
-        return res.status(201).json({message: 'user registered successfully', newUser})
-        
+        let password = req.body.password;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        req.body.password = hashedPassword;
+
+        const newUser = await User.create(req.body);
+
+        // console.log('user created', newUser);
+
+        return res.status(200).json({ message: 'User registered successfully', newUser });
     } catch (error) {
-        return res.status(500).json({message: error.message})
+        return res.status(500).json({ message: error.message });
     }
-}
+};
 
-
-module.exports = registerUser
+module.exports = registerUser;
